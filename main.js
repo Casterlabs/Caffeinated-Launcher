@@ -28,10 +28,8 @@ function createWindow() {
         }
     })
 
-    ipcMain.on("download-update", async (event, { target, url }) => {
-        const directory = __dirname.replace("app.asar", "");
-
-        console.log("Downloading update from: " + url);
+    ipcMain.on("download-update", async (event, { directory, target, url }) => {
+        console.log(`Downloading update from ${url} to ${directory}`);
 
         await electronDl.download(mainWindow, url, {
             directory: directory,

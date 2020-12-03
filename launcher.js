@@ -1,9 +1,9 @@
-const { BrowserWindow } = require("electron").remote;
+const { BrowserWindow, app } = require("electron").remote;
 const { ipcRenderer } = require("electron");
 const Store = require("electron-store");
 const fs = require("fs");
 
-const directory = __dirname.replace("app.asar", "");
+const directory = app.getPath("userData") + "/";
 const file = "update.asar";
 
 const store = new Store();
@@ -66,6 +66,7 @@ async function update() {
 
             ipcRenderer.send("download-update", {
                 url: channel.asar_url,
+                directory: directory,
                 target: file
             });
         } else {
