@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="https://jenil.github.io/bulmaswatch/cyborg/bulmaswatch.min.css" />
+        <title>Casterlabs Caffeinated</title>
+        <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+        <script type="module" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
+        <style>
+            :root {
+                --casterlabs: #e94b4b;
+                --menu-width: 200px;
+                --user-bar-height: 55px;
+                --menu-icon-color: #DCDCDC;
+                --menu-icon-color-hover: #7a7a7a;
+                --menu-background-color: #202020;
+                --menu-border-color: #383838;
+                --title-bar-height: 30px;
+            }
+
+            html {
+                color: whitesmoke;
+                background-color: #141414;
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+            }
+
+            /* Scrollbar */
+
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #444444;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #AAAAAA;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #505050;
+            }
+
+            ::-webkit-slider-runnable-track {
+                width: 300px;
+                height: 2px;
+                border: none;
+                border-radius: 3px;
+            }
+
+            ::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                border: none;
+                height: 12px;
+                width: 12px;
+                border-radius: 500%;
+                background: #141414;
+                border: 2px solid #515151;
+                margin-top: -5px;
+                cursor: pointer;
+            }
+
+            /* Splash page */
+
+            #splash {
+                position: relative;
+                width: 216px;
+                height: 40px;
+                top: 140px;
+                margin: auto;
+            }
+
+            #splash span {
+                bottom: 60px;
+                position: fixed;
+                transform: translateX(-50%);
+                left: 50%;
+            }
+
+            #splash a {
+                color: rgb(160, 160, 160);
+            }
+
+            .app-icon {
+                position: absolute;
+                width: 40px;
+                height: 40px;
+                top: 0px;
+                left: 0px;
+            }
+
+            .caffeinated-logo {
+                position: absolute;
+                width: auto;
+                height: 40px;
+                top: 0px;
+                right: 0px;
+            }
+
+            /* Title bar */
+
+            .title-bar {
+                position: absolute;
+                top: 0px;
+                width: 100%;
+                height: var(--title-bar-height);
+                margin-top: 0px;
+                -webkit-app-region: drag;
+                background-color: #272727;
+                padding-top: 5px;
+            }
+
+            .title-bar ion-icon {
+                color: white !important;
+            }
+
+            .title-bar-title {
+                position: absolute;
+                left: 30px;
+                top: 2px;
+                text-align: left;
+                width: 100%;
+                color: rgb(133, 133, 133);
+                user-select: none;
+            }
+
+            .title-bar-title img {
+                width: 20px;
+                position: absolute;
+                top: 2px;
+                left: -25px;
+                -webkit-app-region: no-drag;
+            }
+
+            .close {
+                position: absolute;
+                right: 10px;
+                -webkit-app-region: no-drag;
+            }
+
+            .close:hover ion-icon {
+                color: var(--menu-icon-color-hover) !important;
+            }
+
+            .minmax {
+                position: absolute;
+                right: 40px;
+                -webkit-app-region: no-drag;
+            }
+
+            .minmax:hover ion-icon {
+                color: var(--menu-icon-color-hover) !important;
+            }
+
+            .minimize {
+                position: absolute;
+                right: 70px;
+                -webkit-app-region: no-drag;
+            }
+
+            .minimize:hover ion-icon {
+                color: var(--menu-icon-color-hover) !important;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="splash" style="opacity: 1;">
+            <img src="media/app_icon.png" class="app-icon" />
+            <img src="media/caffeinated.png" class="caffeinated-logo" />
+            <span class="splash-message" style="opacity: 0;"></span>
+        </div>
+        <div class="title-bar">
+            <div class="title-bar-title"><img class="version-hover" src="media/app_icon.png" />Caffeinated</div>
+            <a class="close" title="Close">
+                <ion-icon name="close-outline"></ion-icon>
+            </a>
+            <a class="minmax" title="Maximize">
+                <ion-icon name="albums-outline"></ion-icon>
+            </a>
+            <a class="minimize" title="Minimize">
+                <ion-icon name="remove-outline"></ion-icon>
+            </a>
+        </div>
+    </body>
+
+    <footer>
+        <script src="launcher.js"></script>
+        <script>
+            window.addEventListener("beforeunload", () => {
+                BrowserWindow.getAllWindows().forEach((window) => {
+                    if (BrowserWindow.getFocusedWindow() !== window) {
+                        window.close();
+                    }
+                });
+            });
+
+            document.querySelector(".close").addEventListener("click", () => {
+                BrowserWindow.getFocusedWindow().close();
+            });
+
+            document.querySelector(".minimize").addEventListener("click", () => {
+                BrowserWindow.getFocusedWindow().minimize();
+            });
+
+            document.querySelector(".minmax").addEventListener("click", () => {
+                BrowserWindow.getFocusedWindow().isMaximized() ? BrowserWindow.getFocusedWindow().unmaximize() : BrowserWindow.getFocusedWindow().maximize();
+            });
+
+            Array.from(document.querySelectorAll(".version-hover")).forEach((element) => {
+                element.setAttribute("title", "Caffeinated Launcher - v" + LAUNCHER_VERSION);
+            });
+
+            update();
+        </script>
+    </footer>
+
+</html>
