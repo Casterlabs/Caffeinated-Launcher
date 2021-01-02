@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const windowStateKeeper = require("electron-window-state");
 const electronDl = require("electron-dl");
+const fs = require('fs');
 
 function createWindow() {
     const mainWindowState = windowStateKeeper({
@@ -31,11 +32,23 @@ function createWindow() {
     ipcMain.on("download-update", async (event, { directory, target, url }) => {
         console.log(`Downloading update from ${url} to ${directory}`);
 
+        try {
+            fs.unlinkSync(directory + target);
+        } catch (e) {
+            console.error(e);
+        }
+
         await electronDl.download(mainWindow, url, {
             directory: directory,
             filename: target
         });
 
+        setTimeout(() => {
+            mainWindow.loadFile(directory + target + "/index.html");
+        }, 500);
+    });
+
+    ipcMain.on("load", (event, { directory, target }) => {
         mainWindow.loadFile(directory + target + "/index.html");
     });
 

@@ -74,7 +74,10 @@ async function update() {
             await sleep(2000);
             splashText(null);
             await sleep(1000);
-            BrowserWindow.getFocusedWindow().loadFile(directory + file + "/index.html");
+            ipcRenderer.send("load", {
+                directory: directory,
+                target: file
+            });
         }
     } catch (e) {
         let left = 5;
