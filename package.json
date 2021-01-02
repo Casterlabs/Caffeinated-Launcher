@@ -1,6 +1,6 @@
 {
-  "name": "Caffeinated",
-  "version": "1.0.1",
+  "name": "caffeinated",
+  "version": "1.0.2",
   "license": "MIT",
   "author": "Casterlabs <support@casterlabs.co>",
   "main": "main.js",
@@ -37,14 +37,21 @@
     },
     "win": {
       "icon": "media/app_icon.ico",
+      "requestedExecutionLevel": "requireAdministrator",
       "target": [
         {
-          "target": "NSIS",
+          "target": "nsis",
           "arch": [
             "x64"
           ]
         }
       ]
+    },
+    "nsis": {
+      "guid": "29026c4f-ab6a-48b9-886e-101f3a7165f4",
+      "oneClick": true,
+      "perMachine": true,
+      "shortcutName": "Caffeinated"
     }
   },
   "dependencies": {
