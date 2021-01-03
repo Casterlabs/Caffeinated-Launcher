@@ -1,23 +1,25 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const windowStateKeeper = require("electron-window-state");
 const electronDl = require("electron-dl");
-const fs = require('fs');
+const fs = require("fs");
+
+const directory = app.getPath("userData") + "/";
+const file = "update.asar";
 
 function createWindow() {
-    const mainWindowState = windowStateKeeper({
+    const windowState = windowStateKeeper({
         defaultWidth: 700,
         defaultHeight: 500,
         file: "main-window.json"
     });
 
-    // Create the browser window.
     const mainWindow = new BrowserWindow({
         minWidth: 700,
         minHeight: 500,
-        width: mainWindowState.width,
-        height: mainWindowState.height,
-        x: mainWindowState.x,
-        y: mainWindowState.y,
+        width: windowState.width,
+        height: windowState.height,
+        x: windowState.x,
+        y: windowState.y,
         transparent: false,
         resizable: true,
         backgroundColor: "#141414",
@@ -27,35 +29,57 @@ function createWindow() {
             nodeIntegration: true,
             enableRemoteModule: true
         }
-    })
+    });
 
-    ipcMain.on("download-update", async (event, { directory, target, url }) => {
-        console.log(`Downloading update from ${url} to ${directory}`);
+    function loadUpdatedFile() {
+        const appWindow = new BrowserWindow({
+            minWidth: 700,
+            minHeight: 500,
+            width: windowState.width,
+            height: windowState.height,
+            x: windowState.x,
+            y: windowState.y,
+            transparent: false,
+            resizable: true,
+            backgroundColor: "#141414",
+            icon: __dirname + "/media/app_icon.png",
+            frame: false,
+            webPreferences: {
+                nodeIntegration: true,
+                enableRemoteModule: true
+            }
+        });
+
+        mainWindow.destroy();
+
+        console.log(`Loading ${directory}${file}`);
+
+        appWindow.loadFile(`${directory}${file}/index.html`);
+        windowState.manage(appWindow);
+    }
+
+    ipcMain.on("download-update", async (event, { url }) => {
+        console.log(`Downloading update from ${url} to ${directory}${file}`);
 
         try {
-            fs.unlinkSync(directory + target);
+            fs.unlinkSync(directory + file);
         } catch (e) {
             console.error(e);
         }
 
         await electronDl.download(mainWindow, url, {
             directory: directory,
-            filename: target
+            filename: file
         });
 
-        setTimeout(() => {
-            mainWindow.loadFile(directory + target + "/index.html");
-        }, 500);
+        loadUpdatedFile();
     });
 
-    ipcMain.on("load", (event, { directory, target }) => {
-        mainWindow.loadFile(directory + target + "/index.html");
-    });
+    ipcMain.on("load", loadUpdatedFile);
 
     // and load the updater/launcher
     mainWindow.loadFile(__dirname + "/index.html");
-
-    mainWindowState.manage(mainWindow);
+    windowState.manage(mainWindow);
 }
 
 // Disable web cache.

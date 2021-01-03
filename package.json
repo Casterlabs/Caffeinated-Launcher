@@ -1,6 +1,6 @@
 {
   "name": "caffeinated",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "author": "Casterlabs <support@casterlabs.co>",
   "main": "main.js",
@@ -14,7 +14,7 @@
   "build": {
     "icon": "media/app_icon.icns",
     "appId": "casterlabs.caffeinated",
-    "artifactName": "Caffeinated-${version}-${os}-setup.${ext}",
+    "artifactName": "Caffeinated-Launcher-${version}-${os}-setup.${ext}",
     "dmg": {
       "contents": [
         {
@@ -37,7 +37,6 @@
     },
     "win": {
       "icon": "media/app_icon.ico",
-      "requestedExecutionLevel": "requireAdministrator",
       "target": [
         {
           "target": "nsis",

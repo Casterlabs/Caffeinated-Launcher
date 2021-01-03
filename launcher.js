@@ -1,10 +1,7 @@
-const { BrowserWindow, app } = require("electron").remote;
+const { app } = require("electron").remote;
 const { ipcRenderer } = require("electron");
 const Store = require("electron-store");
 const fs = require("fs");
-
-const directory = app.getPath("userData") + "/";
-const file = "update.asar";
 
 const store = new Store();
 
@@ -16,29 +13,36 @@ if (!store.get("channel")) {
 
 store.set("launcher_version", LAUNCHER_VERSION);
 
-function splashText(text) {
-    anime({
-        targets: ".splash-message",
-        easing: "linear",
-        opacity: 0,
-        duration: 500
-    }).finished.then(() => {
-        if (text !== null) {
-            document.querySelector(".splash-message").innerHTML = text;
+function splashText(text, flash = true) {
+    if ((text !== null) && !flash) {
+        document.querySelector(".splash-message").innerHTML = text;
+    } else {
+        anime({
+            targets: ".splash-message",
+            easing: "linear",
+            opacity: 0,
+            duration: 500
+        }).finished.then(() => {
+            if (text !== null) {
+                document.querySelector(".splash-message").innerHTML = text;
 
-            anime({
-                targets: ".splash-message",
-                easing: "linear",
-                opacity: 1,
-                duration: 500
-            });
-        }
-    });
+                anime({
+                    targets: ".splash-message",
+                    easing: "linear",
+                    opacity: 1,
+                    duration: 500
+                });
+            }
+        });
+    }
 }
 
-function fileExists(file) {
+function fileExists() {
+    const directory = app.getPath("userData") + "/";
+    const file = "update.asar";
+
     try {
-        return fs.existsSync(file);
+        return fs.existsSync(directory + file);
     } catch (e) {
         console.error(e);
         return false;
@@ -59,25 +63,19 @@ async function update() {
 
         console.log(launcher);
 
-        if ((store.get("protocol_version") < channel.protocol_version) || !fileExists(directory + file)) {
+        if ((store.get("protocol_version") < channel.protocol_version) || !fileExists()) {
             splashText("Update found! Downloading update");
 
-            console.log("Downloading update to " + directory + file);
-
             ipcRenderer.send("download-update", {
-                url: channel.asar_url,
-                directory: directory,
-                target: file
+                url: channel.asar_url
             });
         } else {
             splashText("You're up-to-date! 😄");
             await sleep(2000);
             splashText(null);
             await sleep(1000);
-            ipcRenderer.send("load", {
-                directory: directory,
-                target: file
-            });
+            ipcRenderer.send("load", {});
+            console.log("Told renderer to load new file!");
         }
     } catch (e) {
         let left = 5;
@@ -87,7 +85,7 @@ async function update() {
         setTimeout(update, 6500);
 
         while (left > 0) {
-            splashText(`Update failed, retrying in ${left} seconds.`);
+            splashText(`Update failed, retrying in ${left} seconds.`, false);
 
             left--;
 
