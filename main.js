@@ -2,9 +2,10 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const windowStateKeeper = require("electron-window-state");
 const electronDl = require("electron-dl");
 const fs = require("fs");
+const DecompressZip = require("decompress-zip");
 
-const directory = app.getPath("userData") + "/";
-const file = "update.asar";
+const directory = app.getPath("userData") + "/update/";
+const file = "app.asar";
 
 function createWindow() {
     const windowState = windowStateKeeper({
@@ -13,26 +14,8 @@ function createWindow() {
         file: "main-window.json"
     });
 
-    const mainWindow = new BrowserWindow({
-        minWidth: 700,
-        minHeight: 500,
-        width: windowState.width,
-        height: windowState.height,
-        x: windowState.x,
-        y: windowState.y,
-        transparent: false,
-        resizable: true,
-        backgroundColor: "#141414",
-        icon: __dirname + "/media/app_icon.png",
-        frame: false,
-        webPreferences: {
-            nodeIntegration: true,
-            enableRemoteModule: true
-        }
-    });
-
-    function loadUpdatedFile() {
-        const appWindow = new BrowserWindow({
+    function getAppArgs() {
+        return {
             minWidth: 700,
             minHeight: 500,
             width: windowState.width,
@@ -46,9 +29,20 @@ function createWindow() {
             frame: false,
             webPreferences: {
                 nodeIntegration: true,
-                enableRemoteModule: true
+                enableRemoteModule: true,
+                webSecurity: false
             }
-        });
+        }
+    }
+
+    const mainWindow = new BrowserWindow(getAppArgs());
+
+    function loadUpdatedFile() {
+        const appWindow = new BrowserWindow(getAppArgs());
+
+        if (mainWindow.webContents.isDevToolsOpened()) {
+            appWindow.webContents.openDevTools();
+        }
 
         mainWindow.destroy();
 
@@ -58,24 +52,78 @@ function createWindow() {
         windowState.manage(appWindow);
     }
 
-    ipcMain.on("download-update", async (event, { url }) => {
+    ipcMain.on("download-update", async (event, { url, deps }) => {
         console.log(`Downloading update from ${url} to ${directory}${file}`);
 
         try {
-            fs.unlinkSync(directory + file);
-        } catch (e) {
-            console.error(e);
-        }
+            fs.unlinkSync(directory);
+        } catch (ignored) { }
 
         await electronDl.download(mainWindow, url, {
             directory: directory,
             filename: file
         });
 
-        loadUpdatedFile();
+        if (deps) {
+            console.log(`Downloading dependencies from ${deps} to ${directory}deps.zip`);
+
+            await electronDl.download(mainWindow, deps, {
+                directory: directory,
+                filename: "deps.zip"
+            });
+
+            const unzipper = new DecompressZip(directory + "deps.zip");
+
+            unzipper.on("error", (e) => {
+                console.error(e);
+            });
+
+            unzipper.on("extract", () => {
+                loadUpdatedFile();
+            });
+
+            console.log(`Unzipping dependencies from ${directory}deps.zip to ${directory}`);
+
+            unzipper.extract({
+                path: directory,
+                restrict: false
+            });
+        } else {
+            loadUpdatedFile();
+        }
     });
 
-    ipcMain.on("load", loadUpdatedFile);
+    ipcMain.on("download-file", async (event, { url, dir, filename }) => {
+        console.log(`Downloading file from ${url} to ${dir}${filename}`);
+
+        try {
+            fs.unlinkSync(dir + filename);
+        } catch (e) {
+            console.error(e);
+        }
+
+        await electronDl.download(mainWindow, url, {
+            directory: dir,
+            filename: filename
+        });
+    });
+
+    ipcMain.on("load-update", loadUpdatedFile);
+
+    ipcMain.on("load-web", (event, { url }) => {
+        const webWindow = new BrowserWindow(getAppArgs());
+
+        if (mainWindow.webContents.isDevToolsOpened()) {
+            webWindow.webContents.openDevTools();
+        }
+
+        mainWindow.destroy();
+
+        console.log(`Loading ${url}`);
+
+        webWindow.loadURL(url);
+        windowState.manage(webWindow);
+    });
 
     // and load the updater/launcher
     mainWindow.loadFile(__dirname + "/index.html");

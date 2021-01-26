@@ -10,9 +10,7 @@
         <script nomodule="" src="https://unpkg.com/ionicons@5.2.3/dist/ionicons/ionicons.js"></script>
         <style>
             :root {
-                --casterlabs: #e94b4b;
-                --menu-width: 200px;
-                --user-bar-height: 55px;
+                --theme: #e94b4b;
                 --menu-icon-color: #DCDCDC;
                 --menu-icon-color-hover: #7a7a7a;
                 --menu-background-color: #202020;
@@ -149,8 +147,10 @@
 
             .minmax {
                 position: absolute;
-                right: 40px;
+                right: 34px;
                 -webkit-app-region: no-drag;
+                font-size: .9em;
+                transform: translateY(.75px);
             }
 
             .minmax:hover ion-icon {
@@ -159,7 +159,7 @@
 
             .minimize {
                 position: absolute;
-                right: 70px;
+                right: 58px;
                 -webkit-app-region: no-drag;
             }
 
@@ -176,15 +176,17 @@
             <span class="splash-message" style="opacity: 0;"></span>
         </div>
         <div class="title-bar">
-            <div class="title-bar-title"><img class="version-hover" src="media/app_icon.png" />Caffeinated</div>
+            <div class="title-bar-title">
+                <img class="version-hover" src="media/app_icon.png" />Caffeinated
+            </div>
             <a class="close" title="Close">
-                <ion-icon name="close-outline"></ion-icon>
+                <ion-icon name="close"></ion-icon>
             </a>
             <a class="minmax" title="Maximize">
-                <ion-icon name="albums-outline"></ion-icon>
+                <ion-icon name="browsers-outline"></ion-icon>
             </a>
             <a class="minimize" title="Minimize">
-                <ion-icon name="remove-outline"></ion-icon>
+                <ion-icon name="remove" style="--ionicon-stroke-width: 48px !important;"></ion-icon>
             </a>
         </div>
     </body>
@@ -201,7 +203,7 @@
             });
 
             document.querySelector(".close").addEventListener("click", () => {
-                BrowserWindow.getFocusedWindow().close();
+                app.exit();
             });
 
             document.querySelector(".minimize").addEventListener("click", () => {

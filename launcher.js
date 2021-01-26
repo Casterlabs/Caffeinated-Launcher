@@ -1,11 +1,11 @@
-const { app } = require("electron").remote;
+const { BrowserWindow, app } = require("electron").remote;
 const { ipcRenderer } = require("electron");
 const Store = require("electron-store");
 const fs = require("fs");
 
 const store = new Store();
 
-const LAUNCHER_VERSION = 1;
+const LAUNCHER_VERSION = 2;
 
 if (!store.get("channel")) {
     store.set("channel", "STABLE");
@@ -58,38 +58,51 @@ async function update() {
 
     try {
         const updates = await (await fetch("https://api.casterlabs.co/v1/caffeinated/updates")).json();
-        const launcher = updates["launcher-" + LAUNCHER_VERSION];
-        const channel = launcher[store.get("channel")];
+        const launcher = updates["launcher-" + LAUNCHER_VERSION] || updates["launcher-1"];
+        let channel = launcher[store.get("channel")];
 
-        console.log(launcher);
+        if (!channel) {
+            console.warn("Invalid channel: " + store.get("channel"));
+            store.set("channel", "STABLE");
+            channel = launcher["STABLE"];
+        }
 
-        if ((store.get("protocol_version") < channel.protocol_version) || !fileExists()) {
+        console.log(channel);
+
+        if (channel.web_url) {
+            ipcRenderer.send("load-web", {
+                url: channel.web_url
+            });
+        } else if ((store.get("protocol_version") < channel.protocol_version) || !fileExists()) {
             splashText("Update found! Downloading update");
 
             ipcRenderer.send("download-update", {
-                url: channel.asar_url
+                url: channel.asar_url,
+                deps: channel.deps_url
             });
         } else {
             splashText("You're up-to-date! 😄");
             await sleep(2000);
             splashText(null);
             await sleep(1000);
-            ipcRenderer.send("load", {});
+            ipcRenderer.send("load-update", {});
             console.log("Told renderer to load new file!");
         }
     } catch (e) {
-        let left = 5;
+        let left = 15;
 
         console.log(e);
 
-        setTimeout(update, 6500);
+        splashText(`Update failed, retrying in ${left} seconds.`);
+
+        setTimeout(update, (left * 1000) + 750);
 
         while (left > 0) {
-            splashText(`Update failed, retrying in ${left} seconds.`, false);
+            await sleep(1000);
 
             left--;
 
-            await sleep(1000);
+            splashText(`Update failed, retrying in ${left} seconds.`, false);
         }
 
         splashText(null);
