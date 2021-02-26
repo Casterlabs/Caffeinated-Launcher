@@ -44,7 +44,9 @@ function createWindow() {
             appWindow.webContents.openDevTools();
         }
 
-        mainWindow.destroy();
+        if (!this.mainWindow.isDestroyed()) {
+            mainWindow.destroy();
+        }
 
         console.log(`Loading ${directory}${file}`);
 
@@ -117,7 +119,9 @@ function createWindow() {
             webWindow.webContents.openDevTools();
         }
 
-        mainWindow.destroy();
+        if (!this.mainWindow.isDestroyed()) {
+            mainWindow.destroy();
+        }
 
         console.log(`Loading ${url}`);
 

@@ -5,10 +5,14 @@ const fs = require("fs");
 
 const store = new Store();
 
-const LAUNCHER_VERSION = 2;
+const LAUNCHER_VERSION = 3;
 
 if (!store.get("channel")) {
     store.set("channel", "STABLE");
+}
+
+if (!store.get("protocol_version")) {
+    store.set("protocol_version", -1);
 }
 
 store.set("launcher_version", LAUNCHER_VERSION);
@@ -38,11 +42,10 @@ function splashText(text, flash = true) {
 }
 
 function fileExists() {
-    const directory = app.getPath("userData") + "/";
-    const file = "update.asar";
+    const file = app.getPath("userData") + "/update/app.asar";
 
     try {
-        return fs.existsSync(directory + file);
+        return fs.existsSync(file);
     } catch (e) {
         console.error(e);
         return false;
