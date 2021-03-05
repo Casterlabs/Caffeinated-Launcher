@@ -44,7 +44,7 @@ function createWindow() {
             appWindow.webContents.openDevTools();
         }
 
-        if (!this.mainWindow.isDestroyed()) {
+        if (!mainWindow.isDestroyed()) {
             mainWindow.destroy();
         }
 
@@ -119,7 +119,7 @@ function createWindow() {
             webWindow.webContents.openDevTools();
         }
 
-        if (!this.mainWindow.isDestroyed()) {
+        if (!mainWindow.isDestroyed()) {
             mainWindow.destroy();
         }
 
