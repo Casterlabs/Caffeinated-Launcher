@@ -1,14 +1,12 @@
 {
   "name": "Caffeinated",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "author": "Casterlabs <support@casterlabs.co>",
   "main": "main.js",
   "repository": "https://github.com/Casterlabs/Caffeinated-Launcher",
   "scripts": {
-    "postinstall": "install-app-deps",
     "start": "npm install && electron .",
-    "pack": "electon-builder --dir",
     "dist": "electron-builder"
   },
   "build": {
@@ -60,7 +58,7 @@
     "electron-window-state": "^5.0.3"
   },
   "devDependencies": {
-    "electron-builder": "latest",
-    "electron": "^v11.2.1"
+    "electron": "^v11.4.5",
+    "electron-builder": "^22.11.1"
   }
 }

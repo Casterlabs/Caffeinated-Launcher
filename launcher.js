@@ -5,7 +5,7 @@ const fs = require("fs");
 
 const store = new Store();
 
-const LAUNCHER_VERSION = 3;
+const LAUNCHER_VERSION = 4;
 
 if (!store.get("channel")) {
     store.set("channel", "STABLE");
