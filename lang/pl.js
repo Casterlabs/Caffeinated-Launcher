@@ -148,7 +148,7 @@ LANG.absorbLang({
     //"caffeinated.chatbot.default_reply": "Casterlabs is a free stream widget service!",
 	"caffeinated.chatbot.command_type": "Typ Komendy",
     //"caffeinated.chatbot.trigger": "Trigger",
-    "caffeinated.chatbot.reply": "Odpowiedz",
+    "caffeinated.chatbot.reply": "Odpowiedź",
     //"caffeinated.chatbot.uptime_command.enable": "Enable Uptime Command",
     "caffeinated.chatbot.uptime_command.format": (time) => `Stream trwa: ${time}`,
     //"caffeinated.chatbot.uptime_command.not_live": "We're off the air",
